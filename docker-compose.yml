@@ -5,11 +5,6 @@ services:
     container_name: tfd-frontend
     ports:
       - "3000:3000"
-    environment:
-      NUXT_PORT: 3000
-      NODE_ENV: production
-      BASE_URL: http://backend:3000
-      WEB_URL: http://frontend
     depends_on:
       - backend
     networks:
