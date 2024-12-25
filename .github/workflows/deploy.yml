@@ -15,14 +15,14 @@ jobs:
         with:
           submodules: recursive
 
-      - name: SSH into VPS and deploy
+      - name: Deploy via SSH
         uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
+          username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           script: |
-            cd /projects/tfd-fullstack
+            cd /home/ubuntu/projects/tfd-fullstack
             git pull
             git submodule update --recursive
             docker-compose down
