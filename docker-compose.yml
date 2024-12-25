@@ -1,0 +1,71 @@
+version: "3.9"
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: tfd-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: http://backend:3000/api
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+    container_name: tfd-backend
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/test:/app/test
+      - ./backend/.env:/app/.env
+      - ./backend/upload:/app/upload
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: nest
+      DB_PASSWORD: nest
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3001:3000"
+
+  nginx:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile-nginx
+    container_name: tfd-nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    environment:
+      NGINX_SERVER_NAME: last-day.yourdomain.com
+      NEST_HOST: backend
+      NEST_PORT: 3000
+      NGINX_MAX_BODY: 100M
+
+  db:
+    image: postgres:12
+    container_name: tfd-db
+    environment:
+      POSTGRES_DB: nest
+      POSTGRES_USER: nest
+      POSTGRES_PASSWORD: nest
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:5
+    container_name: tfd-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgresdata:
